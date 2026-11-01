@@ -56,6 +56,18 @@
 .dropzone { position: relative; border: 2px dashed var(--line-strong); border-radius: var(--radius); padding: 28px 20px; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; cursor: pointer; }
 .dropzone:hover, .dropzone.dragging { border-color: var(--gold); }
 .dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.dropzone .solo-compu, .dropzone .solo-tactil { display: block; }
+.dropzone .solo-compu svg, .dropzone .solo-tactil svg { display: block; }
+/* "Sacar foto" (cámara trasera) solo en pantallas táctiles: en la compu queda la zona para elegir o arrastrar. */
+.foto-botones { display: grid; gap: 12px; }
+.dropzone-camara, .dropzone .solo-tactil { display: none; }
+@media (pointer: coarse) {
+  .foto-botones { grid-template-columns: 1fr 1fr; }
+  .dropzone { padding: 22px 12px; }
+  .dropzone-camara { display: flex; border-style: solid; border-color: var(--gold); }
+  .dropzone .solo-tactil { display: block; }
+  .dropzone .solo-compu { display: none; }
+}
 
 .status-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px; }
 .status-option { display: flex; gap: 10px; align-items: flex-start; padding: 14px; border: 1px solid var(--line-input); border-radius: 8px; cursor: pointer; }

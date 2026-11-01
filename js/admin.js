@@ -456,11 +456,19 @@ const dropzone = $('#dropzone');
 ['dragenter', 'dragover'].forEach((ev) => dropzone.addEventListener(ev, () => dropzone.classList.add('dragging')));
 ['dragleave', 'drop'].forEach((ev) => dropzone.addEventListener(ev, () => dropzone.classList.remove('dragging')));
 
-$('#f-fotos').addEventListener('change', async (e) => {
+// Dos entradas: la galería (varias a la vez) y la cámara del celular (una por vez, se sube al sacarla).
+for (const id of ['#f-fotos', '#f-camara']) {
+  $(id).addEventListener('change', (e) => {
+    const elegidas = [...e.target.files];
+    e.target.value = '';
+    subirFotos(elegidas);
+  });
+}
+
+async function subirFotos(elegidas) {
   const lugar = MAX_FOTOS - fotos.length - subiendo;
-  const archivos = [...e.target.files].slice(0, Math.max(0, lugar));
-  if (e.target.files.length > archivos.length) aviso(`Hasta ${MAX_FOTOS} fotos por auto: quedaron afuera ${e.target.files.length - archivos.length}.`);
-  e.target.value = '';
+  const archivos = elegidas.slice(0, Math.max(0, lugar));
+  if (elegidas.length > archivos.length) aviso(`Hasta ${MAX_FOTOS} fotos por auto: quedaron afuera ${elegidas.length - archivos.length}.`);
   const estado = $('#subiendo');
   subiendo += archivos.length;
   let hechas = 0;
@@ -483,7 +491,7 @@ $('#f-fotos').addEventListener('change', async (e) => {
     subiendo--;
   }
   estado.hidden = true;
-});
+}
 
 // Achica la foto del celular (3–10 MB) a un JPG de ~200 KB, respetando la orientación.
 async function achicar(archivo, max, calidad) {

@@ -166,12 +166,20 @@
         <legend>Fotos</legend>
         <p class="muted" style="margin: 0">La portada es la primera que se ve. Las fotos se suben al elegirlas y se achican solas: podés mandarlas directo del celular.</p>
         <div class="photo-grid" id="fotos"></div>
-        <label class="dropzone" id="dropzone">
-          {{i.camera-32}}
-          <strong>Tocá para elegir o sacar fotos</strong>
-          <span class="muted">Podés elegir varias a la vez · hasta 30 por auto</span>
-          <input type="file" accept="image/*" multiple id="f-fotos">
-        </label>
+        <div class="foto-botones">
+          <label class="dropzone dropzone-camara">
+            {{i.camera-32}}
+            <strong>Sacar foto</strong>
+            <span class="muted">Se sube al sacarla</span>
+            <input type="file" accept="image/*" capture="environment" id="f-camara">
+          </label>
+          <label class="dropzone" id="dropzone">
+            <span class="solo-compu">{{i.camera-32}}</span><span class="solo-tactil">{{i.image-32}}</span>
+            <strong class="solo-compu">Tocá para elegir o sacar fotos</strong><strong class="solo-tactil">Galería</strong>
+            <span class="muted solo-compu">Podés elegir varias a la vez · hasta 30 por auto</span><span class="muted solo-tactil">Varias a la vez</span>
+            <input type="file" accept="image/*" multiple id="f-fotos">
+          </label>
+        </div>
         <p class="muted" id="subiendo" hidden style="margin: 0"></p>
       </fieldset>
 
