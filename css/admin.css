@@ -1,0 +1,78 @@
+/* Panel de administración. Usa las variables y componentes de site.css. */
+
+.admin-header { background: var(--bg-deep); border-bottom: 1px solid var(--line); }
+.admin-header .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; padding-top: 10px; padding-bottom: 10px; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center; }
+.admin-nav a, .admin-nav button {
+  display: inline-flex; gap: 6px; align-items: center; min-height: 40px;
+  color: var(--text-2); text-decoration: none; font-weight: 600; background: none; border: 0; padding: 0; cursor: pointer;
+}
+.admin-nav a:hover, .admin-nav button:hover, .admin-nav [aria-current='page'] { color: var(--gold); }
+.admin-nav form { margin: 0; }
+
+.admin-main { padding-top: 32px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 20px; }
+.admin-title { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: end; }
+.admin-card { padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+
+.alert { margin: 0; padding: 12px 16px; border-radius: 8px; font-weight: 600; }
+.alert ul { margin: 6px 0 0; padding-left: 20px; font-weight: 500; }
+.alert-ok { background: rgba(37, 211, 102, 0.12); border: 1px solid rgba(37, 211, 102, 0.5); color: #8af0b4; }
+.alert-error { background: rgba(208, 0, 0, 0.15); border: 1px solid rgba(208, 0, 0, 0.6); color: #ffb3b3; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tabs a, .tabs button { font: inherit; background: none; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-input); color: var(--text-2); text-decoration: none; font-weight: 600; }
+.tabs a span, .tabs button span { color: var(--muted); font-size: 14px; }
+.tabs a[aria-current='page'], .tabs button[aria-pressed='true'] { background: var(--gold); border-color: var(--gold); color: var(--bg); }
+.tabs a[aria-current='page'] span, .tabs button[aria-pressed='true'] span { color: var(--bg); }
+
+.admin-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.admin-row { display: grid; grid-template-columns: 120px 1fr auto auto; gap: 16px; align-items: center; padding: 10px; border-left: 4px solid var(--line-input); }
+.admin-row.status-disponible { border-left-color: var(--wa); }
+.admin-row.status-reservado { border-left-color: var(--gold); }
+.admin-row.status-vendido { border-left-color: var(--red); opacity: 0.8; }
+.admin-thumb { display: block; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; background: var(--surface-3); }
+.admin-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.admin-thumb span { display: flex; height: 100%; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
+.admin-row-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.admin-row-title { color: var(--text); font-weight: 700; font-size: 18px; text-decoration: none; }
+.admin-row-title:hover { color: var(--gold); }
+.admin-row-status { margin: 0; display: flex; gap: 8px; }
+.status-select { width: auto; min-height: 42px; }
+.admin-row-actions { display: flex; gap: 8px; }
+@media (max-width: 720px) {
+  .admin-row { grid-template-columns: 96px 1fr; }
+  .admin-row-status, .admin-row-actions { grid-column: 1 / -1; }
+  .admin-row-status select { flex: 1; }
+}
+
+.car-form { display: flex; flex-direction: column; gap: 20px; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.photo-item { position: relative; border: 1px solid var(--line-input); border-radius: 8px; overflow: hidden; background: var(--surface-3); display: flex; flex-direction: column; }
+.photo-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.photo-opt { display: flex; gap: 8px; align-items: center; padding: 6px 10px; font-size: 14px; cursor: pointer; }
+.photo-del { color: #ffb3b3; border-top: 1px solid var(--line); }
+.photo-item:has(.photo-del input:checked) img { opacity: 0.3; }
+.photo-item .photo-new { position: absolute; top: 6px; left: 6px; background: var(--wa); color: var(--bg); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.dropzone { position: relative; border: 2px dashed var(--line-strong); border-radius: var(--radius); padding: 28px 20px; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; cursor: pointer; }
+.dropzone:hover, .dropzone.dragging { border-color: var(--gold); }
+.dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.status-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px; }
+.status-option { display: flex; gap: 10px; align-items: flex-start; padding: 14px; border: 1px solid var(--line-input); border-radius: 8px; cursor: pointer; }
+.status-option:has(input:checked) { border-color: var(--gold); background: rgba(245, 184, 0, 0.06); }
+.status-option input { margin-top: 4px; accent-color: var(--gold); }
+.status-option small { display: block; color: var(--muted); font-size: 13px; }
+.check { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--gold); }
+
+.form-actions { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.form-actions .alert { flex-basis: 100%; }
+.danger-zone { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; padding: 18px 20px; border-color: rgba(208, 0, 0, 0.5); }
+.btn.danger:hover { color: #ff8a8a; border-color: #ff8a8a; }
+.photo-opt input, .check input { accent-color: var(--gold); }
+
+/* Panel estático (Supabase) */
+.photo-item button.photo-del { font: inherit; color: #ffb3b3; background: none; border: 0; border-top: 1px solid var(--line); text-align: left; }
+.precio-moneda { display: grid; grid-template-columns: 84px 1fr; gap: 8px; }
+.publicando { align-self: flex-start; margin-top: 4px; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--bg); background: var(--gold); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; max-width: calc(100% - 32px); padding: 14px 20px; border-radius: 8px; background: var(--surface-3); border: 1px solid var(--gold); color: var(--text); font-weight: 600; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }

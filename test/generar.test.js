@@ -82,9 +82,12 @@ test('inicio, catálogo y vendé tu auto', () => {
   assert.ok(!vende.includes('class="wa-float"'), 'sin botón flotante sobre el formulario');
 });
 
-test('404 con rutas que funcionan en GitHub Pages', () => {
+test('404 y panel con rutas que funcionan en GitHub Pages', () => {
   const html = leer('404.html');
   assert.ok(html.includes('href="/automotora-carlitos/css/site.css'));
   assert.ok(html.includes('src="/automotora-carlitos/js/no-encontrado.js'));
+  const admin = leer('admin/index.html');
+  assert.ok(admin.includes('<meta name="robots" content="noindex, nofollow">'));
+  assert.ok(admin.includes('type="module" src="../js/admin.js?v='));
   assert.ok(leer('robots.txt').includes('Disallow: /automotora-carlitos/admin/'));
 });

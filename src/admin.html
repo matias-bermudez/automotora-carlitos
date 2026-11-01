@@ -1,0 +1,163 @@
+{{> head}}
+<header class="admin-header">
+  <div class="wrap">
+    <a class="logo" href="#/" aria-label="Panel de administración">
+      <span class="chrome logo-small" style="font-size: 10px">AUTOMOTORA</span>
+      <span class="gold logo-big" style="font-size: 28px">CARLITOS</span>
+      <span class="chrome logo-small" style="font-size: 10px">ADMIN</span>
+    </a>
+    <nav class="admin-nav" id="admin-nav" hidden>
+      <a href="#/" data-nav="lista">Autos</a>
+      <a href="#/nuevo" data-nav="nuevo">{{i.plus-18}}Nuevo auto</a>
+      <a href="{{raiz}}" target="_blank" rel="noopener">{{i.eye-18}}Ver sitio</a>
+      <button type="button" id="salir">{{i.logout-18}}Salir</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap admin-main">
+
+  <p class="muted" id="cargando">Cargando…</p>
+
+  <section id="v-login" hidden style="max-width: 460px; width: 100%">
+    <form class="panel admin-card" id="f-login">
+      <h1 class="display" style="font-size: 40px">Entrar</h1>
+      <p class="muted" style="margin: 0">Panel para cargar y editar los autos del catálogo.</p>
+      <p class="alert alert-error" id="login-error" hidden></p>
+      <label class="field">Email
+        <input class="input" type="email" name="email" autocomplete="username" autocapitalize="none" required>
+      </label>
+      <label class="field">Contraseña
+        <input class="input" type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-red btn-block" type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <section class="admin-main" id="v-lista" hidden style="padding: 0">
+    <div class="admin-title">
+      <h1 class="display" style="font-size: 44px">Autos</h1>
+      <a class="btn btn-red" href="#/nuevo">{{i.plus-20}}Cargar auto</a>
+    </div>
+    <p class="muted" style="margin: 0">Lo que guardes se publica solo en la web en un par de minutos. Los vendidos salen de la web pero quedan acá, en el historial.</p>
+    <nav class="tabs" aria-label="Filtrar por estado" id="tabs"></nav>
+    <ul class="admin-list" id="lista"></ul>
+  </section>
+
+  <section class="admin-main" id="v-editor" hidden style="padding: 0">
+    <div class="admin-title">
+      <div>
+        <a class="link-arrow" href="#/">{{i.arrowLeft-18}}Volver a la lista</a>
+        <h1 class="display" style="font-size: 44px" id="ed-titulo">Cargar auto</h1>
+      </div>
+      <a class="btn btn-ghost" id="ed-ver" href="#" target="_blank" rel="noopener" hidden>{{i.eye-20}}Ver en el sitio</a>
+    </div>
+
+    <div class="alert alert-error" id="ed-errores" hidden></div>
+
+    <form class="car-form" id="f-auto" novalidate>
+      <fieldset class="panel">
+        <legend>Datos principales</legend>
+        <div class="form-grid">
+          <label class="field">Marca *
+            <input class="input" name="marca" required maxlength="40" placeholder="Chevrolet" list="marcas" autocomplete="off">
+          </label>
+          <label class="field">Modelo y versión *
+            <input class="input" name="modelo" required maxlength="80" placeholder="Onix 1.0 Turbo LT" autocomplete="off">
+          </label>
+          <label class="field">Año *
+            <input class="input" name="anio" required inputmode="numeric" maxlength="4" autocomplete="off">
+          </label>
+          <label class="field">Precio
+            <span class="precio-moneda">
+              <select class="input" name="moneda" aria-label="Moneda"><option value="USD">U$S</option><option value="UYU">$</option></select>
+              <input class="input" name="precio" inputmode="numeric" placeholder="Vacío = &quot;Consultar&quot;" autocomplete="off">
+            </span>
+          </label>
+          <label class="field">Kilómetros
+            <input class="input" name="km" inputmode="numeric" placeholder="48.000" autocomplete="off">
+          </label>
+          <label class="field">Tipo
+            <select class="input" name="carroceria"><option>Hatch</option><option>Sedán</option><option>SUV</option><option>Pickup</option><option>Utilitario</option><option>Coupé</option><option>Rural</option></select>
+          </label>
+          <label class="field">Combustible
+            <select class="input" name="combustible"><option>Nafta</option><option>Diésel</option><option>Híbrido</option><option>Eléctrico</option><option>GNC</option></select>
+          </label>
+          <label class="field">Transmisión
+            <select class="input" name="transmision"><option>Manual</option><option>Automático</option></select>
+          </label>
+          <label class="field">Motor
+            <input class="input" name="motor" maxlength="40" placeholder="1.0 Turbo" autocomplete="off">
+          </label>
+          <label class="field">Color
+            <input class="input" name="color" maxlength="40" placeholder="Gris plata" autocomplete="off">
+          </label>
+          <label class="field">Puertas
+            <input class="input" name="puertas" inputmode="numeric" maxlength="1" placeholder="5" autocomplete="off">
+          </label>
+          <label class="field">Etiqueta (opcional)
+            <input class="input" name="etiqueta" maxlength="30" placeholder="Recién ingresado" list="etiquetas" autocomplete="off">
+          </label>
+        </div>
+        <datalist id="marcas"><option value="Chevrolet"><option value="Volkswagen"><option value="Hyundai"><option value="Renault"><option value="Toyota"><option value="Fiat"><option value="Peugeot"><option value="Citroën"><option value="Ford"><option value="Nissan"><option value="Kia"><option value="Suzuki"><option value="Honda"><option value="BYD"><option value="Chery"><option value="Geely"><option value="JAC"><option value="Mercedes-Benz"><option value="BMW"><option value="Audi"></datalist>
+        <datalist id="etiquetas"><option value="Recién ingresado"><option value="Único dueño"><option value="Oportunidad"><option value="Impecable"><option value="Financiación"></datalist>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Fotos</legend>
+        <p class="muted" style="margin: 0">La portada es la primera que se ve. Las fotos se suben al elegirlas y se achican solas: podés mandarlas directo del celular.</p>
+        <div class="photo-grid" id="fotos"></div>
+        <label class="dropzone" id="dropzone">
+          {{i.camera-32}}
+          <strong>Tocá para elegir o sacar fotos</strong>
+          <span class="muted">Podés elegir varias a la vez · hasta 30 por auto</span>
+          <input type="file" accept="image/*" multiple id="f-fotos">
+        </label>
+        <p class="muted" id="subiendo" hidden style="margin: 0"></p>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Descripción</legend>
+        <label class="field">Descripción
+          <textarea class="input" name="descripcion" rows="5" maxlength="4000" placeholder="Estado, services, papeles, lo que lo hace un buen auto… Cada renglón es un párrafo."></textarea>
+        </label>
+        <label class="field">Equipamiento (uno por renglón)
+          <textarea class="input" name="equipamiento" rows="6" maxlength="2000" placeholder="Aire acondicionado&#10;Dirección asistida&#10;Cámara de retroceso"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Publicación</legend>
+        <div class="status-options">
+          <label class="status-option"><input type="radio" name="situacion" value="borrador"><span><strong>Borrador</strong><small>No se ve en la web. Sirve para ir cargándolo.</small></span></label>
+          <label class="status-option"><input type="radio" name="situacion" value="disponible" checked><span><strong>Disponible</strong><small>Aparece en el catálogo.</small></span></label>
+          <label class="status-option"><input type="radio" name="situacion" value="reservado"><span><strong>Reservado</strong><small>Sigue en el catálogo con la etiqueta "Reservado".</small></span></label>
+          <label class="status-option"><input type="radio" name="situacion" value="vendido"><span><strong>Vendido</strong><small>Sale de la web y queda acá en el historial, con la fecha de venta.</small></span></label>
+        </div>
+        <label class="check">
+          <input type="checkbox" name="destacado">
+          <span><strong>Destacado de la semana</strong> · sale grande en la portada (solo uno a la vez)</span>
+        </label>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn-red btn-lg" type="submit" id="guardar">Guardar auto</button>
+        <a class="btn btn-ghost btn-lg" href="#/">Cancelar</a>
+      </div>
+    </form>
+
+    <div class="danger-zone panel" id="zona-borrar" hidden>
+      <div>
+        <strong>Borrar publicación</strong>
+        <p class="muted" style="margin: 0">Si el auto se vendió, conviene marcarlo como <em>Vendido</em> en vez de borrarlo, así queda en el historial.</p>
+      </div>
+      <button class="btn btn-ghost danger" type="button" id="borrar">{{i.trash-18}}Borrar</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="{{raiz}}js/admin.js?v={{v.admin}}"></script>
+</body>
+</html>

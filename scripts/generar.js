@@ -208,7 +208,7 @@ function pagina(plantilla, ruta, datos) {
   const generico = K.waUrl();
   const d = Object.assign({
     raiz,
-    v: { css: v('css/site.css') },
+    v: { css: v('css/site.css'), adminCss: v('css/admin.css'), admin: v('js/admin.js') },
     canonical: SITIO + ruta,
     robots: C.indexar ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     ogTipo: 'website',
@@ -396,6 +396,16 @@ function generarPaginas() {
     descripcion: 'La página que buscás no existe. Mirá los autos usados disponibles en Automotora Carlitos.',
     robots: '<meta name="robots" content="noindex">',
     js: ['config', 'common', 'no-encontrado']
+  });
+
+  // Panel del dueño
+  pagina('admin.html', 'admin/', {
+    titulo: `Panel · ${NEGOCIO}`,
+    descripcion: 'Panel de administración de Automotora Carlitos.',
+    robots: '<meta name="robots" content="noindex, nofollow">',
+    cssExtra: `<link rel="stylesheet" href="../css/admin.css?v=${v('css/admin.css')}">`,
+    js: ['config', 'common'],
+    fab: ''
   });
 
   // sitemap.xml y robots.txt
