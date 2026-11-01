@@ -9,6 +9,7 @@
     <nav class="admin-nav" id="admin-nav" hidden>
       <a href="#/" data-nav="lista">Autos</a>
       <a href="#/nuevo" data-nav="nuevo">{{i.plus-18}}Nuevo auto</a>
+      <a href="#/negocio" data-nav="negocio">{{i.phone-18}}Datos del negocio</a>
       <a href="{{raiz}}" target="_blank" rel="noopener">{{i.eye-18}}Ver sitio</a>
       <button type="button" id="salir">{{i.logout-18}}Salir</button>
     </nav>
@@ -42,6 +43,64 @@
     <p class="muted" style="margin: 0">Lo que guardes se publica solo en la web en un par de minutos. Los vendidos salen de la web pero quedan acá, en el historial.</p>
     <nav class="tabs" aria-label="Filtrar por estado" id="tabs"></nav>
     <ul class="admin-list" id="lista"></ul>
+  </section>
+
+  <section class="admin-main" id="v-negocio" hidden style="padding: 0">
+    <div class="admin-title">
+      <div>
+        <a class="link-arrow" href="#/">{{i.arrowLeft-18}}Volver a la lista</a>
+        <h1 class="display" style="font-size: 44px">Datos del negocio</h1>
+      </div>
+    </div>
+    <p class="muted" style="margin: 0">Lo que cambies acá se actualiza en toda la web en un par de minutos: botones y mensajes de WhatsApp, teléfono, dirección, horarios y pie de página.</p>
+
+    <div class="alert alert-error" id="neg-error" hidden></div>
+
+    <form class="car-form" id="f-negocio" novalidate>
+      <fieldset class="panel">
+        <legend>Contacto</legend>
+        <div class="form-grid">
+          <label class="field">WhatsApp *
+            <input class="input" name="whatsapp" type="tel" inputmode="tel" required maxlength="20" placeholder="Ej: 095 407 252" autocomplete="off">
+          </label>
+        </div>
+        <p class="muted" style="margin: 0">Es el número al que llegan todas las consultas de la web. Se muestra también para llamar.</p>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>El local</legend>
+        <div class="form-grid">
+          <label class="field">Dirección
+            <input class="input" name="direccion" maxlength="200" placeholder="Ej: Cno. Cibils 5700" autocomplete="off">
+          </label>
+          <label class="field">Barrio y ciudad
+            <input class="input" name="zonas" maxlength="200" placeholder="Ej: Paso de la Arena, Montevideo 12600" autocomplete="off">
+          </label>
+          <label class="field">Horario
+            <input class="input" name="horario" maxlength="200" placeholder="Ej: Lun a Vie 8:30–19 · Sáb 8:30–16" autocomplete="off">
+          </label>
+        </div>
+        <p class="muted" style="margin: 0">En el horario, separá los días con · (punto medio) o punto y coma: cada parte sale en un renglón de la tabla de horarios.</p>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Redes</legend>
+        <div class="form-grid">
+          <label class="field">Instagram
+            <input class="input" name="instagram" maxlength="100" placeholder="Usuario, sin @" autocapitalize="none" autocomplete="off">
+          </label>
+          <label class="field">TikTok
+            <input class="input" name="tiktok" maxlength="100" placeholder="Usuario, sin @" autocapitalize="none" autocomplete="off">
+          </label>
+        </div>
+        <p class="muted" style="margin: 0">Si dejás un campo vacío, la web sigue mostrando el dato de siempre.</p>
+      </fieldset>
+
+      <div class="form-actions">
+        <button class="btn btn-red btn-lg" type="submit" id="guardar-negocio">Guardar</button>
+        <a class="btn btn-ghost btn-lg" href="#/">Cancelar</a>
+      </div>
+    </form>
   </section>
 
   <section class="admin-main" id="v-editor" hidden style="padding: 0">

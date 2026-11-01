@@ -2,7 +2,7 @@
 // Los permisos los pone la base compartida: solo los emails de la tabla admins con 'carlitos' (o '*') pueden escribir.
 // La web pública no lee de acá en vivo: scripts/generar.js la regenera cuando se guarda un auto.
 //
-// Vistas por la URL (así anda el botón "atrás" del celular): #/ lista · #/nuevo · #/auto/<id>
+// Vistas por la URL (así anda el botón "atrás" del celular): #/ lista · #/nuevo · #/auto/<id> · #/negocio
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 
 const C = window.CARLITOS_CONFIG;
@@ -41,7 +41,7 @@ async function iniciar() {
 
 function vista(nombre) {
   $('#cargando').hidden = true;
-  for (const v of ['login', 'lista', 'editor']) $('#v-' + v).hidden = v !== nombre;
+  for (const v of ['login', 'lista', 'editor', 'negocio']) $('#v-' + v).hidden = v !== nombre;
   $('#admin-nav').hidden = nombre === 'login';
   document.querySelectorAll('[data-nav]').forEach((a) => {
     const activo = a.dataset.nav === (nombre === 'editor' && !actual ? 'nuevo' : nombre);
@@ -114,6 +114,7 @@ function mostrar() {
   const ruta = location.hash.replace(/^#/, '');
   const id = (ruta.match(/^\/auto\/(\d+)$/) || [])[1];
   if (ruta === '/nuevo') abrir(null);
+  else if (ruta === '/negocio') abrirNegocio();
   else if (id && autos.some((a) => String(a.id) === id)) abrir(autos.find((a) => String(a.id) === id));
   else {
     pintarLista();
@@ -244,6 +245,50 @@ function camposDeSituacion(s, a) {
     extra
   };
 }
+
+// ---- Datos del negocio ----
+// Se guardan en la tabla `negocios`; al publicar pisan a config.js en toda la web.
+
+const CAMPOS_NEGOCIO = ['direccion', 'zonas', 'horario', 'instagram', 'tiktok'];
+// Campo del formulario → clave de CARLITOS_CONFIG (lo que hoy muestra la web).
+const EN_CONFIG = { direccion: 'direccion', zonas: 'zona', horario: 'horarioCorto', instagram: 'instagram', tiktok: 'tiktok' };
+const fNegocio = $('#f-negocio');
+
+async function abrirNegocio() {
+  errores($('#neg-error'));
+  vista('negocio');
+  const { data, error } = await sb.from('negocios').select('*').eq('concesionaria', CONCESIONARIA).maybeSingle();
+  if (error) errores($('#neg-error'), ['No se pudieron leer los datos guardados: ' + error.message]);
+  // Lo guardado en la base; lo que falte, lo que hoy publica la web (config.js).
+  fNegocio.whatsapp.value = (data && data.telefono) || C.whatsappLabel || '';
+  for (const k of CAMPOS_NEGOCIO) fNegocio[k].value = (data && data[k]) || C[EN_CONFIG[k]] || '';
+}
+
+// "095 407 252", "+598 95 407 252" o "2303 6119" → { whatsapp: '59895407252', telefono: '095 407 252' }.
+function telefonoUY(texto) {
+  let d = texto.replace(/\D/g, '');
+  if (d.startsWith('598')) d = d.slice(3);
+  if (d.startsWith('0')) d = d.slice(1);
+  if (!/^[0-9]{8}$/.test(d)) return null;
+  const telefono = d.startsWith('9') ? `0${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5)}` : `${d.slice(0, 4)} ${d.slice(4)}`;
+  return { whatsapp: '598' + d, telefono };
+}
+
+fNegocio.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errores($('#neg-error'));
+  const tel = telefonoUY(fNegocio.whatsapp.value);
+  if (!tel) return errores($('#neg-error'), ['El WhatsApp tiene que ser un número de Uruguay, por ejemplo 095 407 252.']);
+  const fila = { concesionaria: CONCESIONARIA, ...tel };
+  for (const k of CAMPOS_NEGOCIO) fila[k] = fNegocio[k].value.trim().replace(/^@/, '') || null;
+  $('#guardar-negocio').disabled = true;
+  const { error } = await sb.from('negocios').upsert(fila, { onConflict: 'concesionaria' });
+  $('#guardar-negocio').disabled = false;
+  if (error) return errores($('#neg-error'), ['No se pudo guardar: ' + error.message]);
+  Object.assign(C, { whatsapp: tel.whatsapp, whatsappLabel: tel.telefono });
+  aviso('Guardado. En un par de minutos se actualiza en toda la web.');
+  location.hash = '#/';
+});
 
 // ---- Editor ----
 
