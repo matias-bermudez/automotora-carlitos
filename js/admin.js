@@ -39,6 +39,16 @@ async function iniciar() {
   else vista('login');
 }
 
+// GitHub Pages deja que el navegador guarde cada página 10 minutos: desde el panel,
+// los links a la web agregan ?v=<hora> para abrir siempre lo recién publicado.
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[data-fresco]');
+  if (!a) return;
+  const url = new URL(a.href, location.href);
+  url.searchParams.set('v', Date.now());
+  a.href = url.toString();
+});
+
 function vista(nombre) {
   $('#cargando').hidden = true;
   for (const v of ['login', 'lista', 'editor', 'negocio']) $('#v-' + v).hidden = v !== nombre;
@@ -199,7 +209,7 @@ function pintarLista() {
         </select>
       </div>
       <div class="admin-row-actions">
-        ${enLaWeb ? `<a class="btn btn-ghost btn-icon" href="${K.autoUrl({ id: a.slug }, '../')}" target="_blank" rel="noopener" aria-label="Ver en el sitio" title="Ver en el sitio">${K.icono('eye', 20)}</a>` : ''}
+        ${enLaWeb ? `<a class="btn btn-ghost btn-icon" href="${K.autoUrl({ id: a.slug }, '../')}" target="_blank" rel="noopener" data-fresco aria-label="Ver en el sitio" title="Ver en el sitio">${K.icono('eye', 20)}</a>` : ''}
         <a class="btn btn-ghost btn-icon" href="${editar}" aria-label="Editar" title="Editar">${K.icono('edit', 20)}</a>
       </div>
     </li>`;
