@@ -1,0 +1,182 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div class="hero-red" aria-hidden="true"></div>
+  <div class="hero-gold" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="hero-kicker">
+        <span class="checker" aria-hidden="true"></span>
+        <span class="eyebrow" style="font-size: 18px">Compra · Venta · Permuta</span>
+      </div>
+      <h1 class="display h1">Tu próximo auto está en <span class="gold">Camino Cibils</span></h1>
+      <p class="lead">Autos usados en Paso de la Arena. Mirá todo el stock acá, consultá por WhatsApp y vení a verlo al local.</p>
+      <div class="hero-actions">
+        <a class="btn btn-lg btn-red" href="/catalogo">Ver catálogo<%- icon('arrowRight', 20, { width: 2.4 }) %></a>
+        <a class="btn btn-lg btn-ghost" href="/vende-tu-auto">Vendé tu auto</a>
+      </div>
+    </div>
+    <% if (featured) { %>
+      <a class="hero-car" href="<%= carUrl(featured) %>">
+        <% if (featured.cover) { %>
+          <img class="hero-car-photo" src="<%= photoUrl(featured.cover) %>" alt="<%= featured.brand %> <%= featured.model %> <%= featured.year %>">
+        <% } else { %>
+          <%- include('partials/car-placeholder') %>
+        <% } %>
+        <span class="hero-car-caption">Destacado de la semana · <strong><%= featured.brand %> <%= featured.model %></strong> · <%= format.priceLabel(featured.price) %></span>
+      </a>
+    <% } else { %>
+      <div class="hero-car"><%- include('partials/car-placeholder') %></div>
+    <% } %>
+  </div>
+
+  <div class="wrap" style="position: relative; padding-bottom: 56px">
+    <form class="quick-search" action="/catalogo" method="get" aria-label="Búsqueda rápida">
+      <label class="field field-label-caps">Marca
+        <select class="input" name="marca">
+          <option value="">Todas las marcas</option>
+          <% for (const b of facets.brands) { %><option><%= b %></option><% } %>
+        </select>
+      </label>
+      <label class="field field-label-caps">Tipo
+        <select class="input" name="tipo">
+          <option value="">Todos</option>
+          <% for (const t of facets.types) { %><option><%= t %></option><% } %>
+        </select>
+      </label>
+      <label class="field field-label-caps">Precio hasta
+        <select class="input" name="hasta">
+          <option value="">Sin límite</option>
+          <% for (const p of [10000, 15000, 20000, 30000]) { %><option value="<%= p %>">U$S <%= format.thousands(p) %></option><% } %>
+        </select>
+      </label>
+      <button class="btn btn-red" type="submit" style="font-family: var(--condensed); font-style: italic; font-weight: 800; font-size: 20px; text-transform: uppercase"><%- icon('search', 20, { width: 2.4 }) %>Buscar autos</button>
+    </form>
+  </div>
+</section>
+
+<div class="checker checker-strip" aria-hidden="true"></div>
+<section class="perks">
+  <div class="wrap">
+    <div class="perk"><span class="perk-icon"><%- icon('swap', 24) %></span><div><strong>Tomamos tu usado</strong><span>Como parte de pago (permuta)</span></div></div>
+    <div class="perk"><span class="perk-icon"><%- icon('clock', 24) %></span><div><strong>Abierto de lunes a sábado</strong><span>Vení a ver los autos en persona</span></div></div>
+    <a class="perk" href="<%= business.instagramUrl %>" target="_blank" rel="noopener" style="text-decoration: none; color: inherit"><span class="perk-icon"><%- icon('instagram', 24) %></span><div><strong><%= business.followers %> nos siguen</strong><span>Ventas de la semana en Instagram</span></div></a>
+  </div>
+</section>
+
+<section class="wrap section" style="padding-bottom: 40px">
+  <div class="section-head">
+    <div class="stack">
+      <span class="eyebrow">Stock disponible</span>
+      <h2 class="display h2">Recién llegados</h2>
+    </div>
+    <a class="link-arrow" href="/catalogo">Ver todo el catálogo<%- icon('arrowRight', 18, { width: 2.4 }) %></a>
+  </div>
+  <% if (cars.length) { %>
+    <div class="grid-cards">
+      <% for (const car of cars) { %><%- include('partials/car-card', { car }) %><% } %>
+    </div>
+  <% } else { %>
+    <div class="empty">
+      <strong>Estamos cargando el stock</strong>
+      <span class="muted">Mientras tanto, escribinos y te contamos qué autos tenemos.</span>
+      <a class="btn btn-wa" href="<%= wa.waLink('Hola! ¿Qué autos tienen disponibles?') %>" target="_blank" rel="noopener"><%- icon('wa', 20) %>Consultar por WhatsApp</a>
+    </div>
+  <% } %>
+</section>
+
+<section class="wrap section" style="padding-top: 72px">
+  <h2 class="display h2" style="margin-bottom: 40px">Comprá, vendé o <span class="gold">permutá</span></h2>
+  <div class="services">
+    <div class="panel service">
+      <span class="chrome service-num">01</span>
+      <h3>Comprá</h3>
+      <p>Elegí entre los autos del catálogo, consultá por WhatsApp y vení a verlo al local de Camino Cibils.</p>
+      <a class="link-arrow" href="/catalogo">Ver el stock →</a>
+    </div>
+    <div class="panel service">
+      <span class="chrome service-num">02</span>
+      <h3>Vendé</h3>
+      <p>Te compramos el auto. Completá los datos en el formulario, nos llega todo por WhatsApp y nos mandás las fotos por el mismo chat.</p>
+      <a class="link-arrow" href="/vende-tu-auto">Cargar mi auto →</a>
+    </div>
+    <div class="panel service">
+      <span class="chrome service-num">03</span>
+      <h3>Permutá</h3>
+      <p>Entregá tu usado como parte de pago y llevate el próximo. Contanos qué tenés y qué buscás.</p>
+      <a class="link-arrow" href="<%= wa.waLink('Hola! Quiero consultar por una permuta.') %>" target="_blank" rel="noopener">Consultar permuta →</a>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="checker band-checker" aria-hidden="true"></div>
+  <div class="band-dark" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="stack" style="gap: 14px; max-width: 680px">
+      <h2 class="display" style="font-size: clamp(40px, 5.5vw, 68px); color: #fff">¿Querés vender tu auto?</h2>
+      <p>Completá tus datos y los del auto. Te abrimos WhatsApp con el mensaje listo y nos mandás las fotos por ahí.</p>
+    </div>
+    <a class="btn btn-lg btn-gold" href="/vende-tu-auto"><%- icon('camera', 22, { width: 2.2 }) %>Cargar mi auto</a>
+  </div>
+</section>
+
+<section id="contacto" class="wrap section">
+  <div class="stack" style="margin-bottom: 40px">
+    <span class="eyebrow">Contacto</span>
+    <h2 class="display h2">Hablemos de tu próximo auto</h2>
+  </div>
+  <div class="contact-grid">
+    <form class="panel contact-form" data-wa-form="contacto" data-wa-number="<%= waNumber %>" aria-label="Consulta por WhatsApp">
+      <div class="form-grid">
+        <label class="field">Nombre *
+          <input class="input" type="text" name="nombre" required maxlength="60" placeholder="Tu nombre" autocomplete="name">
+        </label>
+        <label class="field">Teléfono
+          <input class="input" type="tel" name="telefono" maxlength="20" placeholder="09X XXX XXX" autocomplete="tel">
+        </label>
+      </div>
+      <label class="field">Me interesa
+        <select class="input" name="interes">
+          <option>Comprar un auto</option>
+          <option>Vender mi auto</option>
+          <option>Hacer una permuta</option>
+          <option>Otra consulta</option>
+        </select>
+      </label>
+      <label class="field">Mensaje
+        <textarea class="input" name="mensaje" rows="4" maxlength="600" placeholder="Contanos qué auto buscás o qué querés consultar"></textarea>
+      </label>
+      <button class="btn btn-wa btn-block" type="submit" style="min-height: 52px; font-size: 17px"><%- icon('wa', 22) %>Enviar por WhatsApp</button>
+      <p class="form-hint">Se abre WhatsApp con tu consulta lista para mandar. No hace falta registrarse.</p>
+    </form>
+
+    <div class="stack" style="gap: 20px">
+      <div class="panel map">
+        <svg viewBox="0 0 600 340" role="img" aria-label="Mapa: Camino Cibils 5700, Paso de la Arena, Montevideo"><rect width="600" height="340" fill="#141417"/><rect x="380" y="20" width="190" height="110" rx="6" fill="#16221B"/><rect x="30" y="220" width="150" height="100" rx="6" fill="#16221B"/><path d="M0 80 H600 M0 190 H600 M0 280 H600 M120 0 V340 M250 0 V340 M470 0 V340" stroke="#222227" stroke-width="12"/><path d="M0 300 L600 40" stroke="#34343B" stroke-width="26"/><path d="M0 300 L600 40" stroke="#F5B800" stroke-width="2" stroke-dasharray="14 12" opacity="0.7"/><text x="70" y="250" fill="#A1A1AA" font-size="15" font-family="Barlow, sans-serif" font-weight="600" transform="rotate(-23.4 70 250)">Camino Cibils</text><circle cx="318" cy="162" r="34" fill="#D00000" opacity="0.18"/><path d="M318 166 C 306 150 298 140 298 128 A20 20 0 0 1 338 128 C 338 140 330 150 318 166 Z" fill="#D00000" stroke="#FFFFFF" stroke-width="2.5"/><circle cx="318" cy="128" r="7" fill="#FFFFFF"/></svg>
+        <div class="map-card">
+          <div><strong><%= business.address %></strong><div class="muted" style="font-size: 14px"><%= business.area %></div></div>
+          <a class="btn btn-red" href="<%= business.mapsUrl %>" target="_blank" rel="noopener" style="min-height: 44px; font-size: 15px">Cómo llegar</a>
+        </div>
+      </div>
+
+      <div class="contact-links">
+        <a class="panel contact-link" href="<%= wa.waLink() %>" target="_blank" rel="noopener"><span class="contact-link-icon" style="background: var(--wa); color: var(--bg)"><%- icon('wa', 22) %></span><span><small>WhatsApp</small><strong><%= phoneLabel %></strong></span></a>
+        <a class="panel contact-link" href="<%= wa.telLink(waNumber) %>"><span class="contact-link-icon" style="background: var(--red); color: #fff"><%- icon('phone', 22) %></span><span><small>Llamanos</small><strong><%= phoneLabel %></strong></span></a>
+        <a class="panel contact-link" href="<%= business.instagramUrl %>" target="_blank" rel="noopener"><span class="contact-link-icon" style="background: var(--gold); color: var(--bg)"><%- icon('instagram', 22) %></span><span style="min-width: 0"><small>Instagram</small><strong><%= business.instagramHandle %></strong></span></a>
+        <a class="panel contact-link" href="<%= business.tiktokUrl %>" target="_blank" rel="noopener"><span class="contact-link-icon" style="background: var(--text); color: var(--bg)"><%- icon('tiktok', 22) %></span><span><small>TikTok</small><strong><%= business.tiktokHandle %></strong></span></a>
+      </div>
+
+      <div class="panel hours">
+        <h3 class="panel-title"><%- icon('clock', 20, { stroke: '#F5B800' }) %>Horarios</h3>
+        <% for (const [day, time] of business.hours) { %>
+          <div class="hours-row"><span class="soft"><%= day %></span><strong<%- time ? '' : ' class="muted"' %>><%= time || 'Cerrado' %></strong></div>
+        <% } %>
+        <div class="muted" style="font-size: 14px; padding-top: 4px">Vendedor: <a href="<%= business.sellerInstagramUrl %>" target="_blank" rel="noopener"><%= business.sellerInstagramHandle %></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

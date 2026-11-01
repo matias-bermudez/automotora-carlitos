@@ -1,0 +1,145 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+<%
+  const specs = [
+    ['Año', car.year],
+    ['Kilómetros', format.kmLabel(car.km)],
+    ['Combustible', car.fuel],
+    ['Transmisión', car.transmission],
+    ['Motor', car.engine],
+    ['Color', car.color],
+    ['Tipo', car.body_type],
+    ['Puertas', car.doors],
+  ].filter(([, v]) => v);
+  const subtitle = [car.year, car.body_type, car.doors ? `${car.doors} puertas` : ''].filter(Boolean).join(' · ');
+  const photos = car.photos;
+%>
+
+<div class="wrap detail-top">
+  <div class="breadcrumb"><a href="/">Inicio</a> / <a href="/catalogo">Catálogo</a> / <%= car.brand %> <%= car.model %></div>
+  <a class="link-arrow" href="/catalogo"><%- icon('arrowLeft', 18, { width: 2.4 }) %>Volver al catálogo</a>
+</div>
+
+<% if (admin) { %>
+  <div class="wrap" style="padding-top: 16px">
+    <div class="panel" style="padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center">
+      <span class="soft">Estás viendo la ficha como admin · estado: <strong style="color: var(--gold)"><%= car.status %></strong></span>
+      <a class="btn btn-ghost" href="/admin/autos/<%= car.id %>" style="min-height: 40px"><%- icon('edit', 18) %>Editar</a>
+    </div>
+  </div>
+<% } %>
+
+<section class="wrap detail">
+  <div class="gallery" data-gallery>
+    <div class="gallery-main">
+      <% if (photos.length) { %>
+        <img src="<%= photoUrl(photos[0].filename) %>" alt="<%= car.brand %> <%= car.model %>, foto 1 de <%= photos.length %>" data-gallery-image>
+      <% } else { %>
+        <span class="placeholder" style="display: flex; justify-content: center; width: 100%"><%- include('partials/car-placeholder') %></span>
+      <% } %>
+      <% if (sold) { %>
+        <span class="badge badge-gold">Vendido</span>
+      <% } else if (car.status === 'reservado') { %>
+        <span class="badge badge-gold">Reservado</span>
+      <% } else if (car.badge) { %>
+        <span class="badge"><%= car.badge %></span>
+      <% } %>
+      <% if (photos.length > 1) { %>
+        <span class="gallery-count">Foto <span data-gallery-current>1</span> de <%= photos.length %></span>
+        <button type="button" class="gallery-nav prev" aria-label="Foto anterior" data-gallery-prev><%- icon('chevronLeft', 22, { width: 2.4 }) %></button>
+        <button type="button" class="gallery-nav next" aria-label="Foto siguiente" data-gallery-next><%- icon('chevronRight', 22, { width: 2.4 }) %></button>
+      <% } %>
+    </div>
+    <% if (photos.length > 1) { %>
+      <div class="thumbs">
+        <% photos.forEach((p, i) => { %>
+          <button type="button" class="thumb" data-gallery-thumb="<%= i %>" data-src="<%= photoUrl(p.filename) %>" aria-label="Ver foto <%= i + 1 %>"<%- i === 0 ? ' aria-current="true"' : '' %>>
+            <img src="<%= photoUrl(p.filename) %>" alt="" loading="lazy">
+          </button>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <aside class="detail-info">
+    <div class="stack" style="gap: 4px">
+      <span class="eyebrow" style="letter-spacing: 0.18em"><%= car.brand %></span>
+      <h1 class="display"><%= car.model %></h1>
+      <span class="muted" style="font-size: 15px"><%= subtitle %></span>
+    </div>
+
+    <% if (sold) { %>
+      <div class="sold-banner">Este auto ya se vendió. Escribinos y te avisamos si entra uno parecido.</div>
+    <% } %>
+
+    <div class="panel price-box">
+      <div>
+        <div class="price-label">Precio contado</div>
+        <div class="price"><%= format.priceLabel(car.price) %></div>
+      </div>
+      <span class="soft" style="font-size: 14px">Aceptamos tu usado en parte de pago</span>
+    </div>
+
+    <div class="specs">
+      <% for (const [label, value] of specs) { %>
+        <div class="panel spec"><small><%= label %></small><strong><%= value %></strong></div>
+      <% } %>
+    </div>
+
+    <a class="btn btn-wa btn-block btn-cta" href="<%= interestLink %>" target="_blank" rel="noopener"><%- icon('wa', 24) %><%= sold ? 'Consultar por uno similar' : 'Me interesa este auto' %></a>
+    <p class="form-hint" style="margin-top: -8px; text-align: center">Se abre WhatsApp con el link de este auto ya en el mensaje.</p>
+    <div class="two-buttons">
+      <a class="btn btn-ghost" href="<%= wa.telLink(waNumber) %>"><%- icon('phone', 18) %>Llamar</a>
+      <% if (!sold) { %><a class="btn btn-ghost" href="<%= visitLink %>" target="_blank" rel="noopener"><%- icon('calendar', 18) %>Coordinar visita</a><% } %>
+    </div>
+    <div class="panel note">
+      <%- icon('pin', 22, { stroke: '#F5B800' }) %>
+      <span>Lo podés ver en <strong><%= business.address %></strong>, de lunes a sábado.</span>
+    </div>
+  </aside>
+</section>
+
+<% if (description.length || equipment.length) { %>
+  <section class="wrap detail-extra">
+    <% if (description.length) { %>
+      <div class="panel">
+        <h2 class="display">Descripción</h2>
+        <% for (const p of description) { %><p><%= p %></p><% } %>
+      </div>
+    <% } %>
+    <% if (equipment.length) { %>
+      <div class="panel">
+        <h2 class="display">Equipamiento</h2>
+        <ul class="equipment">
+          <% for (const e of equipment) { %><li><%- icon('check', 18, { stroke: '#F5B800', width: 2.6 }) %><%= e %></li><% } %>
+        </ul>
+      </div>
+    <% } %>
+  </section>
+<% } %>
+
+<% if (similar.length) { %>
+  <section class="wrap" style="padding-bottom: 96px">
+    <div class="section-head" style="margin-bottom: 28px">
+      <h2 class="display h3">También te pueden <span class="gold">interesar</span></h2>
+      <a class="link-arrow" href="/catalogo">Ver todo el catálogo →</a>
+    </div>
+    <div class="grid-cards" style="gap: 20px">
+      <% for (const s of similar) { %>
+        <a class="card mini-card" href="<%= carUrl(s) %>" style="flex-direction: row">
+          <span class="mini-card-media">
+            <% if (s.cover) { %><img src="<%= photoUrl(s.cover) %>" alt="" loading="lazy"><% } else { %><span class="placeholder"><%- include('partials/car-placeholder') %></span><% } %>
+          </span>
+          <span class="mini-card-body">
+            <span class="card-brand" style="font-size: 14px"><%= s.brand %></span>
+            <span class="card-model" style="font-size: 22px"><%= s.model %></span>
+            <span class="muted" style="font-size: 14px"><%= s.year %> · <%= format.kmLabel(s.km) %> · <%= s.transmission %></span>
+            <span class="price" style="font-size: 26px; margin-top: 4px"><%= format.priceLabel(s.price) %></span>
+          </span>
+        </a>
+      <% } %>
+    </div>
+  </section>
+<% } %>
+
+<%- include('partials/footer', { floatLink: interestLink }) %>

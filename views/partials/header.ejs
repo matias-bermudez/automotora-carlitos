@@ -1,0 +1,35 @@
+<%
+  const navItems = [
+    ['/', 'Inicio'],
+    ['/catalogo', 'Catálogo'],
+    ['/vende-tu-auto', 'Vendé tu auto'],
+    ['/#contacto', 'Contacto'],
+  ];
+  const isCurrent = (href) => href === path || (href === '/catalogo' && path.startsWith('/autos/'));
+%>
+<a class="sr-only" href="#contenido">Saltar al contenido</a>
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-info">
+      <span><%- icon('pin', 16) %><%= business.address %>, Paso de la Arena</span>
+      <span class="topbar-hours"><%- icon('clock', 16) %><%= business.hoursShort %></span>
+    </div>
+    <a href="<%= wa.waLink() %>" target="_blank" rel="noopener"><%- icon('wa', 16) %><%= phoneLabel %></a>
+  </div>
+</div>
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="<%= business.name %>, inicio">
+      <span class="chrome logo-small">AUTOMOTORA</span>
+      <span class="gold logo-big">CARLITOS</span>
+      <span class="chrome logo-small">CIBILS</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <% for (const [href, label] of navItems) { %>
+        <a href="<%= href %>"<%- isCurrent(href) ? ' aria-current="page"' : '' %>><%= label %></a>
+      <% } %>
+    </nav>
+    <a class="btn btn-wa header-cta" href="<%= wa.waLink() %>" target="_blank" rel="noopener"><%- icon('wa', 20) %>Escribinos</a>
+  </div>
+</header>
+<main id="contenido">
