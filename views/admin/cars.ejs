@@ -1,0 +1,64 @@
+<%- include('../partials/head', { extraCss: '/static/css/admin.css' }) %>
+<%- include('_header') %>
+<%
+  const tabs = [['', 'Todos', counts.total], ...statuses.map((s) => [s, s[0].toUpperCase() + s.slice(1), counts[s]])];
+  const fmtDate = (d) => (d ? new Date(d.replace(' ', 'T') + 'Z').toLocaleDateString('es-UY', { timeZone: 'America/Montevideo' }) : '');
+%>
+
+<main class="wrap admin-main">
+  <div class="admin-title">
+    <h1 class="display" style="font-size: 44px">Autos</h1>
+    <a class="btn btn-red" href="/admin/autos/nuevo"><%- icon('plus', 20) %>Cargar auto</a>
+  </div>
+
+  <% if (notice) { %><p class="alert alert-ok"><%= notice %></p><% } %>
+
+  <nav class="tabs" aria-label="Filtrar por estado">
+    <% for (const [value, label, n] of tabs) { %>
+      <a href="/admin<%= value ? '?estado=' + value : '' %>"<%- status === value ? ' aria-current="page"' : '' %>><%= label %> <span><%= n %></span></a>
+    <% } %>
+  </nav>
+
+  <% if (!cars.length) { %>
+    <div class="empty">
+      <strong><%= status ? `No hay autos en "${status}"` : 'Todavía no cargaste ningún auto' %></strong>
+      <a class="btn btn-red" href="/admin/autos/nuevo"><%- icon('plus', 20) %>Cargar el primero</a>
+    </div>
+  <% } else { %>
+    <ul class="admin-list">
+      <% for (const car of cars) { %>
+        <li class="panel admin-row status-<%= car.status %>">
+          <a class="admin-thumb" href="/admin/autos/<%= car.id %>">
+            <% if (car.cover) { %><img src="<%= photoUrl(car.cover) %>" alt="" loading="lazy"><% } else { %><span>Sin fotos</span><% } %>
+          </a>
+          <div class="admin-row-info">
+            <a href="/admin/autos/<%= car.id %>" class="admin-row-title"><%= car.brand %> <%= car.model %> <%= car.year %></a>
+            <span class="muted">
+              <%= format.priceLabel(car.price) %> · <%= format.kmLabel(car.km) %> · <%= car.photo_count %> fotos
+              <% if (car.featured) { %> · <strong style="color: var(--gold)">★ Destacado</strong><% } %>
+            </span>
+            <span class="muted" style="font-size: 13px">
+              Cargado el <%= fmtDate(car.created_at) %><% if (car.sold_at) { %> · Vendido el <%= fmtDate(car.sold_at) %><% } %>
+            </span>
+          </div>
+          <form class="admin-row-status" method="post" action="/admin/autos/<%= car.id %>/estado">
+            <label class="sr-only" for="estado-<%= car.id %>">Estado</label>
+            <select class="input status-select" id="estado-<%= car.id %>" name="status" data-autosubmit-status>
+              <% for (const s of statuses) { %><option value="<%= s %>"<%- car.status === s ? ' selected' : '' %>><%= s[0].toUpperCase() + s.slice(1) %></option><% } %>
+            </select>
+            <noscript><button class="btn btn-ghost" type="submit">Guardar</button></noscript>
+          </form>
+          <div class="admin-row-actions">
+            <% if (car.status !== 'borrador') { %>
+              <a class="btn btn-ghost btn-icon" href="<%= carUrl(car) %>" target="_blank" rel="noopener" aria-label="Ver en el sitio" title="Ver en el sitio"><%- icon('eye', 20) %></a>
+            <% } %>
+            <a class="btn btn-ghost btn-icon" href="/admin/autos/<%= car.id %>" aria-label="Editar" title="Editar"><%- icon('edit', 20) %></a>
+          </div>
+        </li>
+      <% } %>
+    </ul>
+  <% } %>
+</main>
+<script src="/static/js/admin.js" defer></script>
+</body>
+</html>

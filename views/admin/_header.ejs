@@ -1,0 +1,17 @@
+<header class="admin-header">
+  <div class="wrap">
+    <a class="logo" href="/admin" aria-label="Panel de administración">
+      <span class="chrome logo-small" style="font-size: 10px">AUTOMOTORA</span>
+      <span class="gold logo-big" style="font-size: 28px">CARLITOS</span>
+      <span class="chrome logo-small" style="font-size: 10px">ADMIN</span>
+    </a>
+    <% if (admin) { %>
+      <nav class="admin-nav">
+        <a href="/admin"<%- path === '/admin' ? ' aria-current="page"' : '' %>>Autos</a>
+        <a href="/admin/autos/nuevo"<%- path === '/admin/autos/nuevo' ? ' aria-current="page"' : '' %>><%- icon('plus', 18) %>Nuevo auto</a>
+        <a href="/" target="_blank" rel="noopener"><%- icon('eye', 18) %>Ver sitio</a>
+        <form action="/admin/salir" method="post"><button type="submit"><%- icon('logout', 18) %>Salir</button></form>
+      </nav>
+    <% } %>
+  </div>
+</header>
