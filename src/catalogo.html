@@ -1,0 +1,65 @@
+{{> head}}
+{{> header}}
+
+<section class="page-head">
+  <div class="page-head-red" aria-hidden="true"></div>
+  <div class="checker page-head-checker" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="breadcrumb"><a href="{{raiz}}">Inicio</a> / Catálogo</div>
+    <h1 class="display" style="font-size: clamp(46px, 6vw, 76px)">Autos <span class="gold">disponibles</span></h1>
+    <p class="lead" style="font-size: 18px; max-width: 560px">Filtrá por marca, tipo o precio. Cada auto tiene su ficha con fotos y un botón para consultar directo por WhatsApp.</p>
+  </div>
+</section>
+
+<div class="wrap catalog">
+  <aside class="panel filters" aria-label="Filtros">
+    <details open data-filters>
+      <summary>Filtros {{i.search-20}}</summary>
+      <form id="filtros" class="filters-body" action="./" method="get">
+        <div class="filters-head">
+          <span>Filtros</span>
+          <a href="./" data-limpiar hidden>Limpiar</a>
+        </div>
+
+        <label class="field field-label-caps">Buscar
+          <input class="input" type="search" name="q" placeholder="Ej: Onix, Polo…" maxlength="60">
+        </label>
+{{filtros}}
+
+        <label class="field field-label-caps">
+          <span style="display: flex; justify-content: space-between"><span>Precio hasta</span><span style="color: var(--text); letter-spacing: 0" data-price-output>Sin límite</span></span>
+          <input type="range" name="hasta" min="5000" max="{{techo}}" step="500" value="{{techo}}" data-price-range data-ceiling="{{techo}}">
+          <span style="display: flex; justify-content: space-between; font-weight: 500; letter-spacing: 0; text-transform: none"><span>U$S 5.000</span><span>U$S {{techoLabel}}</span></span>
+        </label>
+
+        <a class="btn btn-ghost btn-block" href="./" data-limpiar hidden>Limpiar filtros</a>
+        <a class="btn btn-wa btn-block" href="{{busco}}" target="_blank" rel="noopener" style="font-size: 15px">¿No está el que buscás? Escribinos</a>
+      </form>
+    </details>
+  </aside>
+
+  <div class="results">
+    <div class="results-head">
+      <span class="soft" style="font-size: 17px" aria-live="polite"><strong style="color: var(--text); font-size: 20px" data-total>{{total}}</strong> <span data-total-label>{{totalLabel}}</span></span>
+      <label>Ordenar por
+        <select class="input" name="orden" form="filtros">
+          <option value="nuevos">Recién ingresados</option>
+          <option value="menor">Menor precio</option>
+          <option value="mayor">Mayor precio</option>
+          <option value="km">Menos kilómetros</option>
+          <option value="anio">Más nuevos (año)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="empty" data-vacio{{vacio}}>
+      <strong data-vacio-titulo>Todavía no hay autos publicados</strong>
+      <span class="muted" data-vacio-texto>Estamos cargando el stock. Escribinos y te contamos qué autos tenemos.</span>
+      <a class="btn btn-red" href="./" data-limpiar hidden>Ver todos los autos</a>
+    </div>
+    <div class="grid-cards" style="grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 20px" data-grilla>{{grilla}}</div>
+    <div data-paginas>{{paginas}}</div>
+  </div>
+</div>
+
+{{> footer}}

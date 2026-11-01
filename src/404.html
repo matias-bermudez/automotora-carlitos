@@ -1,0 +1,15 @@
+{{> head}}
+{{> header}}
+
+<section class="wrap section" style="min-height: 50vh">
+  <div class="empty">
+    <strong data-titulo>No encontramos esta página</strong>
+    <span class="muted" data-texto>Puede que el link esté mal o que la página ya no exista. Mirá los autos que tenemos ahora o escribinos.</span>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center">
+      <a class="btn btn-red" href="{{raiz}}catalogo/">Ver el catálogo</a>
+      <a class="btn btn-wa" href="{{wa.href}}" target="_blank" rel="noopener" data-wa>{{i.wa-20}}<span data-wa-texto>Escribinos</span></a>
+    </div>
+  </div>
+</section>
+
+{{> footer}}

@@ -1,0 +1,51 @@
+{{> head}}
+{{> header}}
+
+<div class="wrap detail-top">
+  <div class="breadcrumb"><a href="{{raiz}}">Inicio</a> / <a href="{{raiz}}catalogo/">Catálogo</a> / {{a.nombre}}</div>
+  <a class="link-arrow" href="{{raiz}}catalogo/">{{i.arrowLeft-18-24}}Volver al catálogo</a>
+</div>
+
+<section class="wrap detail">
+  <div class="gallery" data-gallery>
+    <div class="gallery-main">
+      {{galeria}}
+    </div>
+    {{miniaturas}}
+  </div>
+
+  <aside class="detail-info">
+    <div class="stack" style="gap: 4px">
+      <span class="eyebrow" style="letter-spacing: 0.18em">{{a.marca}}</span>
+      <h1 class="display">{{a.modelo}}</h1>
+      <span class="muted" style="font-size: 15px">{{a.subtitulo}}</span>
+    </div>
+
+    <div class="panel price-box">
+      <div>
+        <div class="price-label">Precio contado</div>
+        <div class="price">{{a.precio}}</div>
+      </div>
+      <span class="soft" style="font-size: 14px">Aceptamos tu usado en parte de pago</span>
+    </div>
+
+    <div class="specs">{{ficha}}</div>
+
+    <a class="btn btn-wa btn-block btn-cta" href="{{interes}}" target="_blank" rel="noopener">{{i.wa-24}}Me interesa este auto</a>
+    <p class="form-hint" style="margin-top: -8px; text-align: center">Se abre WhatsApp con el link de este auto ya en el mensaje.</p>
+    <div class="two-buttons">
+      <a class="btn btn-ghost" href="{{wa.tel}}">{{i.phone-18}}Llamar</a>
+      <a class="btn btn-ghost" href="{{visita}}" target="_blank" rel="noopener">{{i.calendar-18}}Coordinar visita</a>
+    </div>
+    <div class="panel note">
+      {{i.pin-22-20-oro}}
+      <span>Lo podés ver en <strong>{{negocio.direccion}}</strong>, de lunes a sábado.</span>
+    </div>
+  </aside>
+</section>
+
+{{extra}}
+
+{{similares}}
+
+{{> footer}}
