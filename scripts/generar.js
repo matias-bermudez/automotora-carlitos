@@ -2,12 +2,14 @@
 // Cada auto tiene su propia página (/autos/<slug>/) con título, descripción, foto para compartir y datos
 // estructurados para Google. GitHub Actions lo corre en cada push a main, cuando se guarda un auto en el
 // panel y cada 15 minutos. Las fotos se bajan y se publican junto con la web, así las visitas no consumen
-// el plan de Supabase.
+// el plan de Supabase. Los datos del negocio que el dueño edita en el panel (tabla negocios) pisan a
+// js/config.js en todo el HTML y en el config.js que publica para el navegador.
 //
 //   node scripts/generar.js                   → para publicar
 //   node scripts/generar.js --local           → para probar: python3 -m http.server 8792 -d _site
-//   SOLO_SI_CAMBIO=1 node scripts/generar.js  → no hace nada si los autos no cambiaron desde la última publicación
+//   SOLO_SI_CAMBIO=1 node scripts/generar.js  → no hace nada si los autos y el negocio no cambiaron desde la última publicación
 //   --datos archivo.json [--fotos carpeta]    → usa esas filas (mismo formato que Supabase) en vez de la base
+//   --negocio archivo.json                    → con --datos: usa esa fila de negocios (sin --negocio, solo config.js)
 //
 // Sin dependencias, solo Node 22+.
 import fs from 'node:fs';
@@ -25,6 +27,7 @@ const args = process.argv.slice(2);
 const opcion = (n) => (args.includes(n) ? path.resolve(args[args.indexOf(n) + 1]) : null);
 const DATOS = opcion('--datos');
 const FOTOS_LOCALES = opcion('--fotos');
+const NEGOCIO_LOCAL = opcion('--negocio');
 
 // Se cargan los mismos archivos que usa el navegador.
 const ctx = vm.createContext({ window: {} });
@@ -44,16 +47,18 @@ let K, AUTOS, esc;
 
 async function main() {
   const filas = DATOS ? JSON.parse(fs.readFileSync(DATOS, 'utf8')) : await leerSupabase();
+  const negocio = DATOS ? (NEGOCIO_LOCAL ? JSON.parse(fs.readFileSync(NEGOCIO_LOCAL, 'utf8')) : null) : await leerNegocio();
+  Object.assign(C, configDeNegocio(negocio));
   ctx.window.CARLITOS_AUTOS = filas.map(deFila).filter(Boolean);
   correr('js/common.js');
   K = ctx.window.CARLITOS;
   esc = K.esc;
 
-  const hash = crypto.createHash('sha256').update(JSON.stringify(filas)).digest('hex').slice(0, 16);
+  const hash = crypto.createHash('sha256').update(JSON.stringify({ autos: filas, negocio })).digest('hex').slice(0, 16);
   if (process.env.SOLO_SI_CAMBIO) {
     const anterior = await fetch(SITIO + 'estado.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (anterior && anterior.hash === hash) {
-      console.log('Los autos no cambiaron desde la última publicación, no hay nada para publicar.');
+      console.log('Los autos y los datos del negocio no cambiaron desde la última publicación, no hay nada para publicar.');
       salida('cambio', 'false');
       return;
     }
@@ -61,6 +66,10 @@ async function main() {
 
   fs.rmSync(SALIDA, { recursive: true, force: true });
   for (const dir of ESTATICOS) fs.cpSync(path.join(RAIZ, dir), path.join(SALIDA, dir), { recursive: true });
+  // El navegador (formularios, mensajes de WhatsApp, panel) usa la config ya con los datos del negocio.
+  // Se reescribe entera, así ningún dato viejo queda en la web publicada.
+  escribir('js/config.js', '// Generado por scripts/generar.js: js/config.js con los datos del negocio de Supabase.\n' +
+    'window.CARLITOS_CONFIG = ' + JSON.stringify(C, null, 1) + ';\n');
   await bajarFotos(K.autos);
   // El catálogo filtra en el navegador con estos mismos datos.
   escribir('js/autos.js', '// Generado por scripts/generar.js.\nwindow.CARLITOS_AUTOS = ' +
@@ -70,7 +79,8 @@ async function main() {
   generarPaginas();
   escribir('estado.json', JSON.stringify({ hash, generado: new Date().toISOString(), autos: AUTOS.length }) + '\n');
   salida('cambio', 'true');
-  console.log(`Listo: ${AUTOS.length} autos (${DATOS ? path.basename(DATOS) : 'Supabase'}). indexar=${C.indexar} → _site/`);
+  console.log(`Listo: ${AUTOS.length} autos (${DATOS ? path.basename(DATOS) : 'Supabase'}), WhatsApp ${C.whatsappLabel}` +
+    `${negocio ? ' (datos del negocio de la base)' : ''}. indexar=${C.indexar} → _site/`);
 }
 
 // ---- Supabase ----
@@ -81,6 +91,51 @@ async function leerSupabase() {
     { headers: { apikey: C.supabaseKey } });
   if (!res.ok) throw new Error(`Supabase respondió ${res.status}: ${await res.text()}`);
   return res.json();
+}
+
+// Datos del negocio que el dueño edita desde el panel (WhatsApp, dirección, horario...).
+// Si la tabla todavía no existe, no hay fila o no hay conexión, se usa js/config.js tal cual.
+async function leerNegocio() {
+  try {
+    const res = await fetch(`${C.supabaseUrl}/rest/v1/negocios?select=*&concesionaria=eq.${encodeURIComponent(C.concesionaria)}`,
+      { headers: { apikey: C.supabaseKey } });
+    if (!res.ok) throw new Error(`Supabase respondió ${res.status}`);
+    return (await res.json())[0] || null;
+  } catch (e) {
+    console.warn(`Aviso: no se pudieron leer los datos del negocio (${e.message}), se usa config.js.`);
+    return null;
+  }
+}
+
+// Fila de negocios → claves de CARLITOS_CONFIG (null = queda el de config.js). Lo que depende de un dato
+// que cambió se recalcula: el mapa sale de la dirección, y si cambia el horario, la tabla de horarios
+// se arma con sus partes y los textos fijos ("de lunes a sábado") pasan a mostrar el horario nuevo.
+function configDeNegocio(n) {
+  if (!n) return {};
+  const c = {};
+  if (n.whatsapp) c.whatsapp = n.whatsapp;
+  if (n.telefono) c.whatsappLabel = n.telefono;
+  for (const k of ['instagram', 'tiktok', 'facebook', 'email']) if (n[k]) c[k] = n[k];
+  if (n.zonas) c.zona = n.zonas;
+  if (n.direccion && n.direccion !== C.direccion) Object.assign(c, { direccion: n.direccion, direccionLarga: n.direccion });
+  if (c.direccion || c.zona) {
+    c.mapa = 'https://www.google.com/maps/search/?api=1&query=' +
+      encodeURIComponent(`${c.direccionLarga || C.direccionLarga}, ${c.zona || C.zona}, Uruguay`);
+  }
+  if (n.horario && n.horario !== C.horarioCorto) {
+    Object.assign(c, {
+      horarioCorto: n.horario,
+      horarios: n.horario.split(/\s*[·;|\n]\s*/).filter(Boolean).map((parte) => {
+        const m = parte.match(/^(.*?)[\s:]+(\d.*)$/);
+        if (m) return [m[1], m[2]];
+        return /cerrad/i.test(parte) ? [parte.replace(/[\s:]*cerrad[oa]s?/i, ''), ''] : [parte, null];
+      }),
+      horarioSchema: '',
+      diasAbierto: n.horario,
+      horarioLargo: `(${n.horario})`
+    });
+  }
+  return c;
 }
 
 // Fila de la base → formato que usan las plantillas y el navegador. Si a un auto le falta algo, se saltea.
@@ -224,6 +279,7 @@ function pagina(plantilla, ruta, datos) {
     negocio: {
       direccion: esc(C.direccion), direccionLarga: esc(C.direccionLarga), zona: esc(C.zona),
       horarioCorto: esc(C.horarioCorto), mapa: esc(C.mapa), seguidores: esc(C.seguidores),
+      diasAbierto: esc(C.diasAbierto), horarioLargo: esc(C.horarioLargo), ubicacion: esc(`${C.direccionLarga}, ${C.zona}`),
       instagram: esc(C.instagram), instagramUrl: `https://www.instagram.com/${esc(C.instagram)}/`,
       tiktok: esc(C.tiktok), tiktokUrl: `https://www.tiktok.com/@${esc(C.tiktok)}`,
       vendedor: esc(C.vendedorInstagram), vendedorUrl: `https://www.instagram.com/${esc(C.vendedorInstagram)}/`
@@ -243,26 +299,34 @@ function escribir(rel, contenido) {
 // ---- Datos estructurados (schema.org) ----
 
 const NEGOCIO_ID = SITIO + '#negocio';
-const negocioLd = {
-  '@context': 'https://schema.org',
-  '@type': 'AutoDealer',
-  '@id': NEGOCIO_ID,
-  name: NEGOCIO,
-  description: 'Automotora en Paso de la Arena, Montevideo. Compra, venta y permuta de autos usados.',
-  url: SITIO,
-  image: SITIO + 'img/og.jpg',
-  telephone: '+' + C.whatsapp,
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: C.direccionLarga,
-    addressLocality: 'Montevideo',
-    addressRegion: 'Montevideo',
-    postalCode: '12600',
-    addressCountry: 'UY'
-  },
-  openingHours: C.horarioSchema.split(',').map((h) => h.trim()),
-  sameAs: ['https://www.instagram.com/' + C.instagram + '/', 'https://www.tiktok.com/@' + C.tiktok]
-};
+// Función y no constante: se arma después de aplicar los datos del negocio de la base.
+function negocioLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AutoDealer',
+    '@id': NEGOCIO_ID,
+    name: NEGOCIO,
+    description: 'Automotora en Paso de la Arena, Montevideo. Compra, venta y permuta de autos usados.',
+    url: SITIO,
+    image: SITIO + 'img/og.jpg',
+    telephone: '+' + C.whatsapp,
+    email: C.email || undefined,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: C.direccionLarga,
+      addressLocality: 'Montevideo',
+      addressRegion: 'Montevideo',
+      postalCode: (C.zona.match(/\b\d{5}\b/) || [])[0],
+      addressCountry: 'UY'
+    },
+    openingHours: C.horarioSchema ? C.horarioSchema.split(',').map((h) => h.trim()) : undefined,
+    sameAs: [
+      C.instagram && 'https://www.instagram.com/' + C.instagram + '/',
+      C.tiktok && 'https://www.tiktok.com/@' + C.tiktok,
+      C.facebook && (/^https?:/.test(C.facebook) ? C.facebook : 'https://www.facebook.com/' + C.facebook)
+    ].filter(Boolean)
+  };
+}
 
 function migas(items) {
   return {
@@ -319,8 +383,8 @@ function generarPaginas() {
   pagina('index.html', '', {
     titulo: `${NEGOCIO} — Autos usados en Paso de la Arena`,
     ogTitulo: NEGOCIO,
-    descripcion: 'Autos usados en Paso de la Arena, Montevideo. Mirá el stock, consultá por WhatsApp y vení a verlo a Cno. Cibils 5700.',
-    jsonld: jsonld(negocioLd, { '@context': 'https://schema.org', '@type': 'WebSite', name: NEGOCIO, url: SITIO, inLanguage: 'es-UY' }),
+    descripcion: esc(`Autos usados en Paso de la Arena, Montevideo. Mirá el stock, consultá por WhatsApp y vení a verlo a ${C.direccion}.`),
+    jsonld: jsonld(negocioLd(), { '@context': 'https://schema.org', '@type': 'WebSite', name: NEGOCIO, url: SITIO, inLanguage: 'es-UY' }),
     nav: { inicio: ' aria-current="page"', catalogo: '', vende: '' },
     js: ['config', 'common', 'formularios'],
     destacado: destacado
@@ -336,8 +400,9 @@ function generarPaginas() {
       : `<div class="empty"><strong>Estamos cargando el stock</strong><span class="muted">Mientras tanto, escribinos y te contamos qué autos tenemos.</span>` +
         `<a class="btn btn-wa" href="${esc(K.waUrl('Hola! ¿Qué autos tienen disponibles?'))}" target="_blank" rel="noopener">${K.icono('wa', 20)}Consultar por WhatsApp</a></div>`,
     permuta: esc(K.waUrl('Hola! Quiero consultar por una permuta.')),
-    horarios: C.horarios.map(([dia, hora]) =>
-      `<div class="hours-row"><span class="soft">${esc(dia)}</span><strong${hora ? '' : ' class="muted"'}>${esc(hora || 'Cerrado')}</strong></div>`).join('')
+    // hora '' = cerrado; null = una parte del horario sin hora (solo el texto).
+    horarios: C.horarios.map(([dia, hora]) => `<div class="hours-row"><span class="soft">${esc(dia)}</span>` +
+      (hora === null ? '' : `<strong${hora ? '' : ' class="muted"'}>${esc(hora || 'Cerrado')}</strong>`) + '</div>').join('')
   });
 
   // Catálogo: lo arma el generador sin filtros; js/catalogo.js aplica los de la URL.

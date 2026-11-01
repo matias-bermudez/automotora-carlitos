@@ -34,6 +34,7 @@ Misma arquitectura que el resto de la Plataforma Automotoras (`~/Proyectos/plata
 
 - `whatsapp` / `whatsappLabel`: número de todos los botones. **Ahora es el de pruebas (091 969 322). Antes de lanzar: `59896665018` / `096 665 018`** (issue #1).
 - Dirección, horarios, Instagram, TikTok y vendedor.
+- **Datos del negocio:** lo que el dueño guarda en el panel (tabla `negocios`) pisa WhatsApp, teléfono, dirección, zona, horario, Instagram y TikTok al publicar, en todo el HTML y en el `js/config.js` publicado. Si no hay fila, vale config.js. Ver `supabase/LEEME.md`.
 - `supabaseUrl`, `supabaseKey` (clave pública), `concesionaria: 'carlitos'`.
 - `sitio`: URL pública con `/` al final (cambiarla si se compra dominio).
 - `indexar`: `false` = `noindex` hasta lanzar.
@@ -46,6 +47,7 @@ npm test           # tests del generador (con test/autos.json, sin conexión)
 ```
 
 Sin conexión a la base: `node scripts/generar.js --local --datos test/autos.json --fotos test/fotos`.
+Para probar datos del negocio sin tocar la base: sumar `--negocio fila.json` (una fila como la de `negocios`).
 
 ## Dar de alta (una vez)
 

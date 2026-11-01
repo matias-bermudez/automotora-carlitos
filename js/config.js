@@ -1,6 +1,9 @@
 // Datos del negocio y de la publicación. Después de cambiar algo hay que publicar (push a main):
 // el sitio se regenera solo.
 //
+// Lo que el dueño carga en el panel ("Datos del negocio", tabla negocios de Supabase) pisa estos
+// valores al publicar: WhatsApp, teléfono, dirección, zona, horario, Instagram y TikTok.
+//
 // whatsapp: por ahora el número de prueba de Matías (091 969 322).
 // Antes de lanzar: el oficial de Automotora Carlitos, 59896665018 / '096 665 018' (issue #1).
 window.CARLITOS_CONFIG = {
@@ -17,6 +20,8 @@ window.CARLITOS_CONFIG = {
     ['Domingos', '']
   ],
   horarioSchema: 'Mo-Fr 08:30-19:00, Sa 08:30-16:00',  // el mismo horario para Google
+  diasAbierto: 'de lunes a sábado',
+  horarioLargo: 'de lunes a viernes de 8:30 a 19 o sábados de 8:30 a 16',
   mapa: 'https://www.google.com/maps/search/?api=1&query=Camino+Cibils+5700+Montevideo+Uruguay',
   instagram: 'automotora_carlitos_cibils5700',
   tiktok: 'franco.molina.2023',

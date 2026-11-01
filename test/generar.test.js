@@ -77,6 +77,11 @@ test('inicio, catálogo y vendé tu auto', () => {
   assert.ok(catalogo.includes('max="25000"'), 'el techo del precio sale del auto más caro');
   assert.equal((catalogo.match(/<article class="card">/g) || []).length, 12);
 
+  // Sin fila de negocios (--datos sin --negocio) se publica la config tal cual, también para el navegador.
+  const config = vm.runInNewContext(leer('js/config.js') + ';window.CARLITOS_CONFIG', { window: {} });
+  assert.equal(config.whatsapp, '59891969322');
+  assert.ok(inicio.includes('<strong>Abierto de lunes a sábado</strong>'));
+
   const vende = leer('vende-tu-auto/index.html');
   assert.ok(vende.includes('Las fotos van por WhatsApp'));
   assert.ok(!vende.includes('class="wa-float"'), 'sin botón flotante sobre el formulario');
